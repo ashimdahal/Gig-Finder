@@ -47,11 +47,20 @@ def get_words(business):
 
 @app.route("/AI/words/list", methods=["POST", "GET"])
 def word_list_api():
+    if not (request.is_json):
+        return jsonify({"error": "send a json request"})
     data = request.json
-    business = data["business"]  # type:ignore
-    model_response = get_words(business)
-    word_json = model_response["choices"][0]["message"]["content"]  # type:ignore
-    return jsonify(word_json)
+
+    if "key" in data:  # type:ignore
+        if data["key"] != "kookkookiehackers":  # type:ignore
+            return jsonify({"error": "Invalid Key"})
+
+        business = data["business"]  # type:ignore
+        model_response = get_words(business)
+        word_json = model_response["choices"][0]["message"]["content"]  # type:ignore
+        return jsonify(word_json)
+
+    return jsonify({"error": "Invalid Key"})
 
 
 if __name__ == "__main__":
