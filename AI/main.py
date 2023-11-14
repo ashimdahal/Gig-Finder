@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from openai import OpenAI
 from dotenv import load_dotenv
 from flask_cors import CORS  # Import CORS
+import json
 
 # initialize a flask app
 app = Flask(__name__)
@@ -47,21 +48,19 @@ def get_words(business):
 
 @app.route("/AI/words/list", methods=["POST", "GET"])
 def word_list_api():
-    if not (request.is_json):
-        return jsonify({"error": "send a json request"})
-    data = request.json
-
+    data = request.get_json()
     if "key" in data:  # type:ignore
         if data["key"] != "kookkookiehackers":  # type:ignore
             return jsonify({"error": "Invalid Key"})
 
         business = data["business"]  # type:ignore
-        model_response = get_words(business)
-        word_json = model_response["choices"][0]["message"]["content"]  # type:ignore
-        return jsonify(word_json)
+        model_response = get_words(business).choices[0].message.content
+        return jsonify(json.loads(model_response))  # type:ignore
 
     return jsonify({"error": "Invalid Key"})
 
 
 if __name__ == "__main__":
-    print(get_words("hair cutting"))
+    print(
+        json.loads(get_words("hair cutting").choices[0].message.content)  # type:ignore
+    )
