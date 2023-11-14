@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 # load the .env environment
 load_dotenv()
-
 # create openAI client
 client = OpenAI()
 
@@ -39,3 +38,7 @@ def get_words(business):
         model=MODEL, messages=messages  # type: ignore
     )
     return response
+
+
+if __name__ == "__main__":
+    print(get_words("hair cutting"))
