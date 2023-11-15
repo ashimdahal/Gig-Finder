@@ -23,7 +23,21 @@ PROMPT_GENERATE_WORDS = (
     "selling points. Generate a JSON with key-value pairs for each topics."
 )
 
+PROMPT_GENERATE_DESCRIPTION = (
+    "Generate a description for a <BS_TYPE> business on a freelance platform "
+    "The name of the business is <BS_NAME> and the tagline is <BS_TAGLINE>"
+    "keeping the following key value pair of words/values important"
+    "to the business in your mind "
+    "<JSON_KV_PAIR>"
+)
 # prompt generation context.
+CONTEXT_DESC_GENERATION = (
+    "You're helping a business owner to write a description for "
+    "their business on a freelance platform. They have choosen "
+    "A key values pair to best describe themselves and their "
+    "business."
+)
+
 CONTEXT_WORD_GENERATION = (
     "You are helping a business owner to write a description of "
     "their business. You need to offer them a list of words to choose "
@@ -46,6 +60,25 @@ def get_words(business):
     return response
 
 
+def get_description(bs_name, bs_type, bs_tagline, kv_pair):
+    messages = [
+        {"role": "system", "content": CONTEXT_DESC_GENERATION},
+        {
+            "role": "user",
+            "content": PROMPT_GENERATE_DESCRIPTION.replace(
+                "<JSON_KV_PAIR>", str(kv_pair)
+            )
+            .replace("<BS_NAME>", bs_name)
+            .replace("<BS_TYPE>", bs_type)
+            .replace("<BS_TAGLINE>", bs_tagline),
+        },
+    ]
+    response = client.chat.completions.create(
+        model=MODEL, messages=messages  # type:ignore
+    )
+    return response
+
+
 @app.route("/AI/words/list", methods=["POST", "GET"])
 def word_list_api():
     data = request.get_json()
@@ -60,7 +93,30 @@ def word_list_api():
     return jsonify({"error": "Invalid Key"})
 
 
+@app.route("/AI/business/description", methods=["POST", "GET"])
+def business_description_api():
+    data = request.get_json()
+    if "key" in data:
+        if data["key"] != "kookkookiehackers":
+            return jsonify({"error": "Invalid Key"})
+
+        bs_name = data["bs_name"]
+        bs_type = data["bs_type"]
+        bs_tag = data["bs_type"]
+        kv_pair = data["kv_pair"]
+        model_response = (
+            get_description(bs_name, bs_type, bs_tag, kv_pair)
+            .choices[0]
+            .message.content
+        )
+        return jsonify({"desc": model_response})
+    return jsonify({"error": "Invalid Key"})
+
+
 if __name__ == "__main__":
-    print(
-        json.loads(get_words("hair cutting").choices[0].message.content)  # type:ignore
-    )
+    kv_pair = {"values": ["hardwork", "honesty", "professionalism"]}
+    bs_name = "Bimarsha Hair cutting"
+    bs_type = "Hair cut"
+    bs_tagline = "The best hair cut in hattiesburg"
+    # print(get_description(bs_name, bs_type, bs_tagline, kv_pair))
+    print(get_words(bs_type).choices[0].message.content)
