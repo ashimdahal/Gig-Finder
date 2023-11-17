@@ -102,7 +102,7 @@ def business_description_api():
 
         bs_name = data["bs_name"]
         bs_type = data["bs_type"]
-        bs_tag = data["bs_type"]
+        bs_tag = data["bs_tag"]
         kv_pair = data["kv_pair"]
         model_response = (
             get_description(bs_name, bs_type, bs_tag, kv_pair)
@@ -113,10 +113,61 @@ def business_description_api():
     return jsonify({"error": "Invalid Key"})
 
 
+with open("dummy_data.json", "r") as file:
+    data = json.load(file)
+
+
+@app.route("/dummy/kv/", methods=["POST", "GET"])
+def dummy_data_dump():
+    return jsonify({"kv_pair": data[1]})
+
+
+@app.route("/dummy/desc/", methods=["POST", "GET"])
+def demo_desc():
+    return jsonify({"desc": data[0]})
+
+
+@app.route("/dummy/content")
+def demo_content():
+    return jsonify({"content": data[2:]})
+
+
 if __name__ == "__main__":
-    kv_pair = {"values": ["hardwork", "honesty", "professionalism"]}
+    kv_pair = {
+        "values": [
+            "Professionalism",
+            "Customer satisfaction",
+            "Attention to detail",
+            "Innovation",
+            "Reliability",
+        ],
+        "services": [
+            "Haircuts",
+            "Hairstyling",
+            "Hair coloring",
+            "Highlights",
+            "Treatments",
+            "Beard trims",
+        ],
+        "expertise": [
+            "Skilled stylists",
+            "Experienced professionals",
+            "Up-to-date with latest trends",
+        ],
+        "unique selling points": [
+            "Personalized experience",
+            "Relaxing environment",
+            "Timely service",
+            "Affordable prices",
+        ],
+    }
     bs_name = "Bimarsha Hair cutting"
     bs_type = "Hair cut"
     bs_tagline = "The best hair cut in hattiesburg"
     # print(get_description(bs_name, bs_type, bs_tagline, kv_pair))
-    print(get_words(bs_type).choices[0].message.content)
+    # print(get_words(bs_type).choices[0].message.content)
+    print(
+        get_description(bs_name, bs_type, bs_tagline, kv_pair)
+        .choices[0]
+        .message.content
+    )
