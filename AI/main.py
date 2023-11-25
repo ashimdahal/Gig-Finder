@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from openai import OpenAI
 from dotenv import load_dotenv
-from flask_cors import CORS  # Import CORS
 import json
 
 # initialize a flask app
@@ -90,7 +90,7 @@ def word_list_api():
         model_response = get_words(business).choices[0].message.content
         return jsonify(json.loads(model_response))  # type:ignore
 
-    return jsonify({"error": "Invalid Key"})
+    return {"error": "Invalid Key"}
 
 
 @app.route("/AI/business/description", methods=["POST", "GET"])
@@ -117,6 +117,7 @@ with open("dummy_data.json", "r") as file:
     data = json.load(file)
 
 
+# Define a decorator for handling CORS headers
 @app.route("/dummy/kv/", methods=["POST", "GET"])
 def dummy_data_dump():
     return jsonify({"kv_pair": data[1]})
@@ -127,7 +128,7 @@ def demo_desc():
     return jsonify({"desc": data[0]})
 
 
-@app.route("/dummy/content")
+@app.route("/dummy/content", methods=["POST", "GET"])
 def demo_content():
     return jsonify({"content": data[2:]})
 
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     bs_type = "Hair cut"
     bs_tagline = "The best hair cut in hattiesburg"
     # print(get_description(bs_name, bs_type, bs_tagline, kv_pair))
-    # print(get_words(bs_type).choices[0].message.content)
+    print(get_words(bs_type).choices[0].message.content)
     print(
         get_description(bs_name, bs_type, bs_tagline, kv_pair)
         .choices[0]
